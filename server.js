@@ -1,41 +1,11 @@
-const express = require("express");
-const cron = require("node-cron");
-const fs = require("fs");
+const jsonfile = require("jsonfile");
+const moment = require("moment");
 const simpleGit = require("simple-git");
-
-const app = express();
-const git = simpleGit();
-
-const PORT = 3000;
-
-// Home Route
-app.get("/", (req, res) => {
-  res.send("GitHub Contribution Bot Running 🚀");
-});
-
-// Daily Commit Function
-async function makeCommit() {
-  const time = new Date().toISOString();
-
-  fs.appendFileSync("log.txt", `Commit at ${time}\n`);
-
-  try {
-    await git.add("./*");
-    await git.commit(`Auto commit ${time}`);
-    await git.push("origin", "main");
-
-    console.log("✅ Commit pushed");
-  } catch (err) {
-    console.log("❌ Error:", err);
-  }
+const path = "./data.json";
+const date = moment().subtract(5, 'd').format();
+const data = {
+  date:date,
 }
-
-// Runs every day at 10 PM
-cron.schedule("* * * * *", () => {
-  console.log("Running auto commit...");
-  makeCommit();
-});
-
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+jsonfile.writeFile(path, data, ()=>{
+  simpleGit().add([path]).commit(date,{'--date':date}).push();
 });
