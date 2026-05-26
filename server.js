@@ -31,7 +31,7 @@ async function makeCommit() {
 }
 
 // Runs every day at 10 PM
-cron.schedule("0 22 * * *", () => {
+cron.schedule("* * * * *", () => {
   console.log("Running auto commit...");
   makeCommit();
 });
